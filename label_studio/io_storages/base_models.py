@@ -3,6 +3,7 @@
 import logging
 import django_rq
 import json
+import re
 
 from django.utils import timezone
 from django.db import models, transaction
@@ -18,6 +19,7 @@ from data_export.serializers import ExportDataSerializer
 from core.redis import is_job_in_queue, redis_connected, is_job_on_worker
 from core.utils.common import load_func
 from core.utils.params import get_bool_env
+from core.settings.base import EVA_CURSOR
 from label_studio_tools.core.utils.params import get_bool_env
 
 from io_storages.utils import get_uri_via_regex
@@ -51,6 +53,27 @@ class Storage(models.Model):
 
     class Meta:
         abstract = True
+
+# Add task to EVA
+def add_to_eva(data_url, video_id):
+    data_path_string = ''
+    for i in data_url:
+        data_path_string = data_url[i]
+    
+    # start_pos = re.search('/?d', data_path_string).start()
+    # print(start_pos)
+    start_pos = len('/data/local-files/?d=')
+    data_path = data_path_string[start_pos:]
+    data_path = '/'+data_path
+
+    EVA_CURSOR.execute(f'load file "{data_path}" into v{video_id}')
+    print(video_id)
+    response = EVA_CURSOR.fetch_all()
+    print(response)
+
+    print(data_path)
+    return 'done'
+
 
 
 class ImportStorage(Storage):
@@ -129,6 +152,9 @@ class ImportStorage(Storage):
 
             if 'data' in data and isinstance(data['data'], dict):
                 data = data['data']
+
+            ### We will create EVA task here
+            print('\n\n\nthe data is: ', data, add_to_eva(data, max_inner_id), '\n\n')
 
             with transaction.atomic():
                 task = Task.objects.create(

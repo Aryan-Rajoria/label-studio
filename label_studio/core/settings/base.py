@@ -13,14 +13,35 @@ import os
 import re
 import logging
 import json
+import nest_asyncio
 
 from datetime import timedelta
 from label_studio.core.utils.params import get_bool_env, get_env
+
+from eva.server.db_api import connect
 
 formatter = 'standard'
 JSON_LOG = get_bool_env('JSON_LOG', False)
 if JSON_LOG:
     formatter = 'json'
+
+EVA_CURSOR = None
+
+def get_eva_cursor():
+    nest_asyncio.apply()
+    if EVA_CURSOR:
+        return EVA_CURSOR
+    else:
+        raise Exception("Did not initialize EVA")
+
+def check_cursor_connection():
+    EVA_CURSOR.execute('select id,data from videos where id<1;')
+    response = EVA_CURSOR.fetch_all()
+    print(response)
+
+# Connecting to EVA server and making variable Avaliable globally
+EVA_CURSOR = connect(host='127.0.0.1', port=5432).cursor()
+# check_cursor_connection()
 
 LOGGING = {
     'version': 1,
