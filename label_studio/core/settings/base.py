@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+from subprocess import Popen, PIPE
 import re
 import logging
 import json
@@ -40,7 +41,11 @@ def check_cursor_connection():
     print(response)
 
 # Connecting to EVA server and making variable Avaliable globally
-EVA_CURSOR = connect(host='127.0.0.1', port=5432).cursor()
+try:
+    # x = Popen('eva_server')
+    EVA_CURSOR = connect(host='127.0.0.1', port=5432).cursor()
+except ConnectionRefusedError as e:
+    raise ConnectionRefusedError('The connection from EVA was refused, please start EVA server')
 # check_cursor_connection()
 
 LOGGING = {
