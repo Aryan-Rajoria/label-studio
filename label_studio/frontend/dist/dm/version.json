@@ -1,6 +1,6 @@
 {
-  "message": "fix: DEV-3673: Navigation using task links is broken (#124)",
-  "commit": "11b5975d499f63e96eae988be7bca7aa7bb31557",
+  "message": "fix: DEV-3874: Fix polling overflow",
+  "commit": "049cb9f247b2353b4bf8a49cfc0412e70b76a39b",
   "branch": "master",
-  "date": "2022-11-03T15:53:51Z"
+  "date": "2022/12/01 16:12:47"
 }
